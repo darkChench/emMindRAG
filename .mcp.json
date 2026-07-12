@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "emMindRAG": {
+      "command": "D:\\04_AI_worksapce\\02MCP\\emMindRAG\\.venv\\Scripts\\python.exe",
+      "args": ["D:\\04_AI_worksapce\\02MCP\\emMindRAG\\server.py"]
+    }
+  }
+}

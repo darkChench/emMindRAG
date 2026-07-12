@@ -1,0 +1,26 @@
+# emMindRAG 配置 —— 改这个文件调参数,留空/删项则用代码默认
+# 改完重启生效(CLI 重新启动会重读)
+
+chunk:
+  size: 300                # 文档每块字符上限
+  overlap: 1               # 段落重叠行(相邻块接力)
+  code_size: 400           # 代码每块字符上限
+  code_overlap: 2          # 代码重叠行
+
+search:
+  top_k: 3                 # 默认返回条数
+  pool_factor: 4           # 召回候选池 = top_k × factor(给 reranker 更多选择)
+
+reranker:
+  model: BAAI/bge-reranker-base    # reranker 模型;换更小用 Xenova/ms-marco-MiniLM-L-6-v2
+
+mineru:
+  language: ch             # MinerU OCR / 解析语言
+
+# 敏感配置走环境变量(不写这里,避免泄露):
+#   MINERU_TOKEN          MinerU 精准 API token(mineru.net 注册)
+#   EMBEDDING_PROVIDER    glm / openai
+#   EMBEDDING_API_KEY     embedding API key
+#   EMBEDDING_MODEL       embedding 模型名
+#   OPENAI_BASE_URL       OpenAI 兼容代理
+#   HF_ENDPOINT           HuggingFace 镜像(如 https://hf-mirror.com)

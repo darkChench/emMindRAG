@@ -1,0 +1,10 @@
+mcp[cli]>=1.0
+pymupdf>=1.24
+chromadb
+onnxruntime                    # reranker 推理(bge-reranker-base,纯 CPU 无需 torch)
+tokenizers                     # reranker tokenizer(模型自带 tokenizer.json)
+python-docx                    # Word(.docx)解析
+ebooklib                       # EPUB 电子书解析
+beautifulsoup4                 # 网页 / EPUB 正文提取
+requests                       # 在线 embedding(GLM/OpenAI)+ MinerU API
+pyyaml                         # config.yaml 配置读取

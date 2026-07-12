@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# 大文件(可重新下载/自动生成,不进版本库)
+svd_files/*.svd
+svd_files/_cache.pkl
+models/
+chroma_db/
+
+# 临时 / 测试生成物
+test_docs/_test.*
+
+# IDE / 系统
+.idea/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db
+
+# 大测试 PDF(73MB,不进仓库)
+test_docs/stm32u575RG_cn.pdf
