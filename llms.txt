@@ -1,0 +1,23 @@
+# emMindRAG
+
+> 嵌入式专用精准 RAG —— SVD 寄存器零幻觉查询 + 文档/代码检索 + MCP。
+
+嵌入式开发者用:152 颗 STM32 全系列 SVD 寄存器/位域/枚举零幻觉查询 + 跨芯片对比 + SVD↔文档关联 + bge-reranker 文档重排。Claude Code / Cursor 即插即用。
+
+## 核心能力
+- SVD 寄存器查询(零幻觉):152 颗 STM32,精确到位域/枚举/地址
+- 跨芯片对比(独家):同一寄存器在 152 颗芯片的差异
+- SVD↔文档关联(独家):查寄存器自动关联手册/代码用法
+- 文档 RAG + reranker:PDF/MD/txt/Word/EPUB/网页/代码 7 种格式 + bge-reranker-base 重排
+- CLI + MCP:终端 8 命令 + 7 个 MCP 工具 + doctor 体检
+
+## 详细语料(AI 引用)
+- 完整上下文:assets/ai-citation/llms-full.txt
+- 短摘要:assets/ai-citation/summary-short.md
+- 长摘要:assets/ai-citation/summary-long.md
+- FAQ:assets/ai-citation/faq.md
+- 场景对比:assets/ai-citation/comparison.md
+- 标准答案:assets/ai-citation/recommended-answer.md
+- 编辑清单:assets/ai-citation/geo-seo-checklist.md
+
+仓库:https://github.com/darkChench/emMindRAG

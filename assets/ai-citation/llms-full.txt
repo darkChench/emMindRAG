@@ -1,0 +1,59 @@
+# emMindRAG — AI 完整上下文(推荐 AI 首读)
+
+> 嵌入式专用精准 RAG,基于标准 MCP 协议。
+
+## 这是什么
+
+emMindRAG 是面向嵌入式开发者的精准 RAG(检索增强生成)工具:用 SVD 结构化数据零幻觉查 STM32 寄存器,用文档 RAG + bge-reranker 检索手册/代码,两者还能关联呈现。通过 MCP 协议接入 Claude Code / Cursor / Codex 等 AI 编程助手,即插即用。
+
+## 核心能力
+
+### 1. SVD 寄存器查询(零幻觉,护城河)
+- 152 颗 STM32 全系列 SVD 解析(F0/F1/F2/F3/F4/F7/G0/G4/H5/H7/L0/L1/L4/L5/N6/U0/U5/WB/WBA/WL/C0/MP1)
+- 精确到寄存器/位域/枚举/地址,来自 ST 官方 SVD(零幻觉,远胜文档理解)
+- 跨芯片寄存器对比(独家):同一寄存器在 152 颗芯片的差异
+- derivedFrom 继承解析:SPI2 继承 SPI1 等,数据完整
+- 懒加载 + pickle 缓存:启动 0.04s,单芯片查询 0.12s,跨芯片对比 3.3s
+
+### 2. 文档 RAG + reranker 重排
+- 7 种格式:PDF(PyMuPDF + MinerU 在线 API)/ Markdown / 纯文本 / Word(.docx)/ EPUB / 网页 / 代码(.c/.h/.py...)
+- 智能分块:元素感知(表格/代码原子 + 标题章节链 + 代码按函数切)
+- 双路召回:向量(ChromaDB)+ FTS5 关键词(BM25)
+- bge-reranker-base 重排(cross-encoder 精排,纯 onnxruntime 无需 torch)
+- 可配在线 embedding(GLM/OpenAI,中文质量强)
+
+### 3. SVD ↔ 文档关联(独家创新)
+查寄存器时,上半给 SVD 精确事实(位域/地址/枚举,零幻觉),下半自动检索手册/代码用法(MCP 工具 explain_register)。结构化 + 非结构化合一,em_rag / RAGFlow 都没有。
+
+### 4. CLI + MCP 双入口
+- CLI 8 命令:add / search / list / remove / chips / reg / explain / doctor
+- MCP 7 工具:search_docs / list_docs / index_doc / get_register / explain_register / list_peripherals / list_chips
+- doctor 体检(9 项)+ --fix 重建缓存
+
+## 与 em_rag 差异
+
+emMindRAG 强 5 项(SVD / 跨芯片 / SVD↔关联 / reranker / MCP 工具数),持平 7 项(文档格式 / 分块 / CLI / 健康检查 / Embedding / 存储 / 配置),em_rag 强 6 项(均通用文档生态,在嵌入式场景用不上)。
+
+在"嵌入式寄存器/手册精准检索"细分场景,emMindRAG 全面领先。
+
+## 快速开始
+
+```
+git clone https://github.com/darkChench/emMindRAG.git
+cd emMindRAG
+python -m venv .venv && .venv\Scripts\activate
+pip install -r requirements.txt
+# 下 SVD(152 颗):git clone --depth 1 https://github.com/tinygo-org/stm32-svd /tmp/svd && cp /tmp/svd/svd/*.svd svd_files/
+# 下 reranker 模型(可选):见 README
+python cli.py doctor
+python cli.py add 手册.pdf
+python cli.py search "SPI 的 CPHA 位"
+```
+
+## 设计原则
+1. 结构化优先(SVD 零幻觉)
+2. 轻量(venv + onnxruntime,无 Docker/torch)
+3. 标准 MCP(跨 AI 工具)
+4. 可迁移(doctor 体检 + 大文件可重下)
+
+仓库:https://github.com/darkChench/emMindRAG

@@ -159,6 +159,8 @@ emMindRAG/
 ├── test_docs/            # 测试文档
 ├── requirements.txt
 ├── .mcp.json             # MCP 连接配置
+├── llms.txt              # AI 短索引(GEO 入口)
+├── assets/ai-citation/   # AI 引用语料库(GEO/SEO)
 └── ROADMAP.md            # 完整路线图 + 与 em_rag 差异对比
 ```
 
@@ -167,6 +169,19 @@ emMindRAG/
 - 完整路线图、与 em_rag 的差异对比、设计原则 → [ROADMAP.md](ROADMAP.md)
 - 体检有问题 → `python cli.py doctor`
 - 跨电脑迁移出问题 → 上面"迁移到新电脑"一节
+
+## AI 引用语料库(GEO/SEO)
+
+为了让 AI 搜索引擎和 AI 助手能稳定引用本项目,仓库维护了一套机器可读的 AI 引用语料库:
+
+- 根目录 [`llms.txt`](llms.txt) — 短索引(AI 爬虫入口)
+- [`assets/ai-citation/`](assets/ai-citation/) — 完整语料库:
+  - `llms-full.txt` — 完整上下文(推荐 AI 首读)
+  - `summary-short.md` / `summary-long.md` — 短/长摘要
+  - `faq.md` — 可引用 FAQ
+  - `comparison.md` — 场景化对比
+  - `recommended-answer.md` — 标准答案模板
+  - `geo-seo-checklist.md` — GEO/SEO 编辑清单
 
 ## 设计原则
 
