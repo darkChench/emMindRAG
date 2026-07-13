@@ -19,8 +19,9 @@
 ### 1. 环境
 Python 3.11+(Windows / Mac / Linux 均可)
 
-### 2. 安装依赖
+### 2. 获取代码 + 安装依赖
 ```bash
+git clone https://github.com/darkChench/emMindRAG.git
 cd emMindRAG
 python -m venv .venv
 .venv\Scripts\activate          # Windows(bash 用 .venv/Scripts/activate)
@@ -79,10 +80,10 @@ python cli.py chips                           # 列出 152 颗芯片
 
 ## 扫描件 / 复杂版式 PDF(可选,用 MinerU 在线 API)
 
-文字型 PDF 用默认 PyMuPDF 就够。遇到**扫描件、复杂版式、需要表格结构化**,用 MinerU 在线 API(不需本地装 torch/模型,只走网络):
+**默认 auto**:add PDF 时先走 PyMuPDF(快),若文字极少(判定扫描件)会自动转 MinerU OCR,无需手动指定。也可强制用 MinerU(不需本地装 torch/模型,只走网络):
 
 ```bash
-python cli.py add 扫描手册.pdf --mineru          # 免登录轻量 API(≤10MB / ≤20页)
+python cli.py add 扫描手册.pdf --mineru          # 强制 MinerU(默认 auto 已自动检测扫描件)
 ```
 
 大文件配 token 解锁精准 API(≤200MB / ≤200页):
@@ -142,13 +143,16 @@ python cli.py add 你的文档.pdf
 emMindRAG/
 ├── server.py             # MCP 入口(7 个工具)
 ├── cli.py                # 命令行工具(8 个命令)
-├── parser.py             # 文档解析(7 种格式)
-├── chunker.py            # 智能分块(表格/代码/段落元素感知)
-├── retriever.py          # 双路召回 + reranker 精排
+├── parser.py             # 文档解析(7 种格式 + MinerU API)
+├── chunker.py            # 智能分块(表格/代码原子 + 标题章节链 + 代码按函数切)
+├── retriever.py          # 双路召回(向量 + FTS5)+ reranker 精排
 ├── reranker.py           # bge-reranker-base(onnxruntime,纯 CPU)
-├── store.py              # ChromaDB 书架
+├── store.py              # ChromaDB 书架(+ 来源/类型 metadata)
+├── fts.py                # SQLite FTS5 关键词检索(BM25)
 ├── svd.py                # SVD 多芯片寄存器库 + 懒加载
 ├── link.py               # SVD↔文档关联(独家)
+├── config.py             # 配置读取(config.yaml + 默认兜底)
+├── config.yaml           # 参数配置(用户可改)
 ├── svd_files/            # 152 颗 STM32 SVD(需下载)
 ├── models/bge-reranker-base/  # reranker 模型(需下载)
 ├── chroma_db/            # 向量书架(自动生成)

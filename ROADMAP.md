@@ -21,7 +21,7 @@
 - 分块:元素感知(表格/代码原子 + **标题章节链**)+ 段落优先 + 代码按函数切 + overlap
 - Embedding:默认 chromadb MiniLM(英文,本地);可配 GLM/OpenAI 在线(中文质量强)
 - 存储:ChromaDB(向量)+ SQLite FTS5(关键词,BM25 排序)
-- 检索:向量 + 关键词(2-gram)双路召回 → **bge-reranker-base 重排**(cross-encoder 精排,精度超越点)
+- 检索:向量 + FTS5(BM25)双路召回 → **bge-reranker-base 重排**(cross-encoder 精排,精度超越点)
 
 ### SVD 精确查询通道 ⭐(护城河)
 - **152 颗 STM32 全系列** SVD 解析(F0/F1/F2/F3/F4/F7/G0/G4/H5/H7/L0/L1/L4/L5/N6/U0/U5/WB/WBA/WL/C0/MP1)
@@ -31,12 +31,13 @@
 - derivedFrom 继承解析(peripheral + register 两级,SPI2/I2C2/ADC2.SR 等继承来的外设/寄存器数据完整)
 - **SVD ↔ 文档关联** ⭐(独家):查寄存器自动关联手册用法,结构化(SVD 零幻觉)+ 非结构化(文档)合一
 
-### MCP 工具集(6 个)
+### MCP 工具集(7 个)
 | 工具 | 通道 | 作用 |
 |------|------|------|
-| `search_docs` | 文档 RAG | 语义+关键词双路检索 |
-| `list_docs` / `index_doc` | 文档 RAG | 文档管理 |
+| `search_docs` | 文档 RAG | 语义+关键词双路检索(支持 code/source 过滤) |
+| `list_docs` / `index_doc` | 文档 RAG | 文档管理(index_doc 支持 mineru) |
 | `get_register` ⭐ | SVD | 精确查寄存器/位域,零幻觉 |
+| `explain_register` ⭐ | SVD↔文档 | 寄存器事实 + 手册/代码关联(独家) |
 | `list_peripherals` / `list_chips` ⭐ | SVD | 芯片/外设浏览 |
 
 ---
@@ -90,15 +91,15 @@
 ### 🚀 阶段 2:加 reranker(超越点)【已完成】`status: done ✅`
 - [x] **2.1 bge-reranker-base 重排序** ✅ —— 双路召回后 cross-encoder 精排(量化版 280MB,纯 onnxruntime+tokenizers 无需 torch),懒加载+降级。**em_rag/RAGFlow 无重排,文档精度反超**。难度:中
 
-### 🔧 阶段 3:补文档处理`status: pending`
+### 🔧 阶段 3:补文档处理【已完成】`status: done ✅`
 - [x] **3.1 多格式解析** ✅ —— Word(.docx,python-docx,段落+表格)/ EPUB(ebooklib,章节正文)/ 网页(.html,beautifulsoup4,去脚本样式后提正文)。难度:中
 - [x] **3.2 智能分块** ✅ —— 元素感知:表格/代码块识别为原子单元(不切断),普通段落按 size+overlap;标题随段落。难度:中-高
 - [x] **3.3 可选 MinerU** ✅ —— 用 MinerU 在线 API(免本地重依赖):无 token 走 Agent 轻量 API(10MB/20页),配 MINERU_TOKEN 走精准 API(200MB/200页,vlm 模型)。输出 markdown,失败降级 PyMuPDF。难度:中
 
-### 🔧 阶段 4:补工程化【基本完成】`status: mostly done ✅`
-- [x] **4.1 CLI 命令** ✅ —— cli.py 六个子命令:add / search / list / remove / chips / reg(argparse,无新依赖)。doctor 留 4.3。难度:中
+### 🔧 阶段 4:补工程化【已完成】`status: done ✅`
+- [x] **4.1 CLI 命令** ✅ —— cli.py 八个子命令:add / search / list / remove / chips / reg / explain / doctor(argparse,无新依赖)。难度:中
 - [x] **4.2 config.yaml 配置系统** ✅ —— config.py 读 config.yaml(chunk / search / reranker / mineru 参数),敏感 key 走环境变量。各模块走 config.getd,doctor [9] 显示。难度:中
-- [x] **4.3 doctor 健康检查 + repair** ✅ —— cli.py doctor:6 项体检(Python 库 / SVD / reranker / 书架 / 核心模块 / MCP 配置)+ --fix 自动重建 SVD 缓存。难度:中
+- [x] **4.3 doctor 健康检查 + repair** ✅ —— cli.py doctor:9 项体检(Python 库 / SVD / reranker / 书架 / 核心模块 / MCP 配置 / MinerU / Embedding / config)+ --fix 自动重建 SVD 缓存。难度:中
 
 ### 🚀 阶段 5:创新(独家)【进行中】`status: in progress`(5.1 ✅)
 - [x] **5.1 SVD ↔ 文档关联** ✅ —— link.py:查寄存器时合并 SVD 精确事实(零幻觉)+ 手册用法(文档检索+reranker)。MCP 工具 explain_register + CLI explain。难度:高
@@ -124,22 +125,22 @@
 
 ```
 emMindRAG/
-├── server.py             # MCP 入口(6 个工具)
-├── cli.py               # 命令行工具(add/search/list/remove/chips/reg)
-├── parser.py             # 文档解析(PDF/MD/txt)
-├── chunker.py            # 分块(按段落+overlap)
-├── store.py              # ChromaDB 书架
+├── server.py             # MCP 入口(7 个工具)
+├── cli.py               # 命令行工具(add/search/list/remove/chips/reg/explain/doctor)
+├── parser.py             # 文档解析(PDF/MD/txt/Word/EPUB/网页/代码 7 种;+ MinerU 在线 API)
+├── chunker.py            # 智能分块(表格/代码原子 + 标题章节链 + 代码按函数切)
+├── retriever.py          # 双路召回(向量 + FTS5)+ bge-reranker 精排
+├── reranker.py           # bge-reranker-base(onnxruntime,纯 CPU,无需 torch)
+├── store.py              # ChromaDB 书架(+ 来源/类型 metadata,可配在线 embedding)
 ├── fts.py               # SQLite FTS5 关键词检索(BM25)
-├── config.py            # 配置读取(config.yaml + 默认兜底)
-├── config.yaml          # 参数配置(用户可改)
-├── retriever.py          # 双路检索(向量+关键词)
-├── svd.py                # SVD 多芯片寄存器库 ⭐
+├── svd.py                # SVD 多芯片寄存器库 + 懒加载 + derivedFrom 继承 ⭐
 ├── link.py              # SVD↔文档关联(独家)⭐
+├── config.py            # 配置读取(config.yaml + 默认兜底)
+├── config.yaml          # 参数配置(用户可改:chunk/search/reranker/mineru)
 ├── svd_files/            # 152 颗 STM32 SVD(340M)+ _cache.pkl(130M 懒加载缓存)
-├── chroma_db/            # 向量书架
 ├── models/bge-reranker-base/  # reranker 模型(280M,onnx 量化版)
+├── chroma_db/            # 向量书架(自动生成)
 ├── test_docs/            # 测试文档
-├── test_*.py             # 各模块测试
 ├── requirements.txt
 ├── .mcp.json             # MCP 连接配置(venv python 绝对路径)
 ├── README.md            # 项目说明 + 安装/用法/迁移指南
@@ -177,3 +178,4 @@ emMindRAG/
 - **2026-07-06(续)**:✅ FTS5 关键词检索 —— fts.py 用 SQLite FTS5(BM25 + 倒排索引)替代手写 2-gram。chromadb 向量 + FTS5 关键词双引擎(同 em_rag)。验证:"SPI CPHA" / "波特率" BM25 精准排序(代码注释排前,稀有词加权),中文(unicode61)+ type 过滤正常,3466 块自动迁移。存储架构从「em_rag 强」追到「持平」(计分 em_rag 8→7,持平 5→6)。
 - **2026-07-08**:✅ 4.2 config.yaml 配置系统 —— config.py 读 config.yaml(chunk / search / reranker / mineru 参数),敏感 key(MINERU_TOKEN / EMBEDDING_* 等)走环境变量。各模块(chunker / retriever / reranker / parser)走 config.getd,doctor 加 [9] 配置显示。用户改 config.yaml 重启即生效。**🎉 阶段 4(工程化)全部完成**(4.1 CLI + 4.2 config + 4.3 doctor)。配置系统从「em_rag 强」追到「持平」(计分 em_rag 7→6,持平 6→7)。
 - **2026-07-08(续2)**:✅ 元素分类(标题上下文链)—— chunker 识别 markdown # 标题,遇新标题先封块(不跨章节),每块带〔章节〕标签。验证:GPIO 块标〔GPIO 寄存器〕、MODER 块标〔MODER 寄存器〕,检索结果自带章节定位。元素分类维度从「em_rag 强」缩到「em_rag 略」(我们有标题链 + 表格/代码 + MinerU 结构,em_rag 是全分类器)。
+- **2026-07-13**:✅ 改名 em-rag-mini → **emMindRAG** + 上 GitHub —— 全局改名(目录 / 文件内容 / .mcp.json / venv activate 脚本);修 .gitignore 行内注释问题(此前导致大文件未排除);git init + 首次提交 + push 到 https://github.com/darkChench/emMindRAG。仓库 23 文件(代码/文档/配置),大文件(SVD 340M / 模型 280M / 缓存 / 书架)按 .gitignore 忽略,clone 后照 README 重下。
